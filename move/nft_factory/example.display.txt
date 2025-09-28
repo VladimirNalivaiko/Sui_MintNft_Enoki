@@ -1,0 +1,522 @@
+#[allow(lint(self_transfer))]
+module suitale::publication {
+    use sui::object::{Self, UID, ID};
+    use sui::tx_context::{TxContext, sender};
+    use sui::transfer::{public_share_object, public_transfer, transfer as sui_transfer};
+    use sui::coin::{Self, Coin};
+    use sui::sui::SUI; // Import SUI type for coin operations
+    use std::string::{String, utf8};
+    use sui::display::{Self};
+    use sui::package::{Self};
+    use sui::event;
+
+    // Error codes
+    const EMaximumCapacityReached: u64 = 1;
+    const EIncorrectPaymentAmount: u64 = 2;
+    const EPlatformFeeExceedsPrice: u64 = 3;
+    const ECounterTaleMismatch: u64 = 4;        // Counter doesn't match Tale
+
+    /// Represents the template or master copy of a Tale, from which editions can be minted.
+    /// This object is immutable after creation to prevent stale object reference issues.
+    struct Tale has key, store {
+        id: UID,
+        blob_id: String,            // Identifier for content in Walrus (Walrus)
+        title: String,
+        author: address,            // Original creator of the tale content
+        description: String,
+        cover_image_url: String,    // URL for the cover image (e.g., Walrus URL)
+        
+        mint_price: u64,            // Total price a user pays to mint an edition (in MIST)
+        mint_capacity: u64,         // Maximum number of editions that can be minted
+        // minted_count removed - now handled by separate MintCounter
+        
+        author_mint_beneficiary: address, // Address that receives the author's share from minting
+        
+        royalty_fee_bps: u16,       // Royalty fee in basis points (0-10000) for secondary sales
+        royalty_beneficiary: address // Address that receives royalties
+    }
+
+    /// Separate counter object to track minted editions and prevent race conditions.
+    /// This object is mutable and handles the minting count state.
+    struct MintCounter has key, store {
+        id: UID,
+        tale_id: ID,                // Reference to the Tale object
+        current_count: u64,         // Current number of minted editions
+        max_capacity: u64,          // Maximum number of editions that can be minted
+        owner: address,             // Owner of the counter (same as Tale owner)
+        
+        // Duplicated Tale data for standalone minting (no Tale access needed)
+        mint_price: u64,            // Price per mint (duplicated from Tale)
+        author_mint_beneficiary: address, // Where to send author's share (duplicated from Tale)
+        tale_title: String,         // Tale title for NFT creation
+        tale_description: String,   // Tale description for NFT creation
+        tale_cover_url: String,     // Tale cover image URL for NFT creation
+    }
+
+    /// Represents a minted edition of a Tale (NFT).
+    struct TaleEditionNFT has key, store {
+        id: UID,
+        name: String,               // Name of the NFT (e.g., "Tale Title - Edition #1")
+        description: String,        // Description (can be taken from Tale.description)
+        url: String,                // Link to the image (can be taken from Tale.cover_image_url)
+        
+        original_tale_id: ID,       // ID of the master Tale object
+        edition_number: u64,        // Edition number of this NFT
+    }
+
+    /// Event emitted when a new Tale is published (for marketplace indexing)
+    struct TalePublished has copy, drop {
+        tale_id: ID,
+        title: String,
+        author: address,
+        mint_price: u64,
+        mint_capacity: u64,
+        cover_image_url: String,
+    }
+
+    /// Event emitted when a MintCounter is created for a Tale
+    struct MintCounterCreated has copy, drop {
+        counter_id: ID,
+        tale_id: ID,
+        max_capacity: u64,
+        owner: address,
+    }
+
+    /// Event emitted when a Tale edition is minted (for marketplace indexing)
+    struct TaleEditionMinted has copy, drop {
+        nft_id: ID,
+        tale_id: ID,
+        edition_number: u64,
+        minter: address,
+        mint_price: u64,
+    }
+
+    /// One-time witness for creating Display objects
+    struct PUBLICATION has drop {}
+
+    /// Initialize Display objects for marketplace compatibility
+    fun init(otw: PUBLICATION, ctx: &mut TxContext) {
+        let publisher = package::claim(otw, ctx);
+        
+        // Create Display for TaleEditionNFT (the actual tradeable NFTs)
+        // By declaring vectors as variables first, we help the compiler avoid hanging.
+        let nft_keys = vector[
+            utf8(b"name"),
+            utf8(b"description"), 
+            utf8(b"image_url"),
+            utf8(b"project_url"),
+            utf8(b"creator"),
+            utf8(b"link"),
+            utf8(b"collection"),
+            utf8(b"attributes")
+        ];
+        let nft_values = vector[
+            utf8(b"{name}"),
+            utf8(b"{description}"),
+            utf8(b"{url}"),
+            utf8(b"https://suitale.io"),
+            utf8(b"SuiTale"),
+            utf8(b"https://suitale.io/tale/{original_tale_id}"),
+            utf8(b"SuiTale Articles"),
+            utf8(b"Edition #{edition_number}")
+        ];
+        let nft_display = display::new_with_fields<TaleEditionNFT>(&publisher, nft_keys, nft_values, ctx);
+        
+        display::update_version(&mut nft_display);
+        public_transfer(nft_display, sender(ctx));
+        
+        // Create Display for Tale (collection template)
+        let collection_keys = vector[
+            utf8(b"name"),
+            utf8(b"description"),
+            utf8(b"image_url"), 
+            utf8(b"project_url"),
+            utf8(b"creator"),
+            utf8(b"type"),
+            utf8(b"supply"),
+            utf8(b"mint_price")
+        ];
+        let collection_values = vector[
+            utf8(b"{title}"),
+            utf8(b"{description}"),
+            utf8(b"{cover_image_url}"),
+            utf8(b"https://suitale.io"),
+            utf8(b"SuiTale"),
+            utf8(b"Article Collection"),
+            utf8(b"{mint_capacity}"),
+            utf8(b"{mint_price}")
+        ];
+        let collection_display = display::new_with_fields<Tale>(&publisher, collection_keys, collection_values, ctx);
+        
+        display::update_version(&mut collection_display);
+        public_transfer(collection_display, sender(ctx));
+        
+        // --- NEW: Create Display for MintCounter ---
+        let counter_keys = vector[
+            utf8(b"name"),
+            utf8(b"description"),
+            utf8(b"image_url")
+        ];
+        let counter_values = vector[
+            utf8(b"Mint Pass for \"{tale_title}\""),
+            utf8(b"Controls minting. Supply: {current_count}/{max_capacity}"),
+            utf8(b"{tale_cover_url}")
+        ];
+        let counter_display = display::new_with_fields<MintCounter>(&publisher, counter_keys, counter_values, ctx);
+        
+        display::update_version(&mut counter_display);
+        public_transfer(counter_display, sender(ctx));
+
+        // --- IMPROVEMENT: Burn the Publisher ---
+        package::burn_publisher(publisher);
+    }
+
+    /// Publishes a new Tale template, making it available for minting editions.
+    /// Creates both immutable Tale and separate MintCounter.
+    public fun publish_tale_template(
+        blob_id: vector<u8>,
+        title: vector<u8>,
+        description: vector<u8>,
+        cover_image_url: vector<u8>,
+        mint_price: u64,
+        mint_capacity: u64,
+        author_mint_beneficiary: address, // Can be the same as sender(ctx) or different
+        royalty_fee_bps: u16,
+        royalty_beneficiary: address,   // Usually the author or author_mint_beneficiary
+        ctx: &mut TxContext
+    ) {
+        let tale_author = sender(ctx);
+        let tale_id = object::new(ctx);
+        let tale_id_copy = object::uid_to_inner(&tale_id);
+        
+        // Create the immutable Tale template
+        let tale = Tale {
+            id: tale_id,
+            blob_id: utf8(blob_id),
+            title: utf8(title),
+            author: tale_author,
+            description: utf8(description),
+            cover_image_url: utf8(cover_image_url),
+            mint_price: mint_price,
+            mint_capacity: mint_capacity,
+            // No minted_count - Tale is immutable
+            author_mint_beneficiary: author_mint_beneficiary,
+            royalty_fee_bps: royalty_fee_bps,
+            royalty_beneficiary: royalty_beneficiary,
+        };
+
+        // Create separate MintCounter for tracking mints
+        let counter_id = object::new(ctx);
+        let counter_id_copy = object::uid_to_inner(&counter_id);
+        let mint_counter = MintCounter {
+            id: counter_id,
+            tale_id: tale_id_copy,
+            current_count: 0,                        // Start with 0 - no NFT minted yet
+            max_capacity: mint_capacity,
+            owner: tale_author,
+            // Duplicate Tale data for standalone minting (no Tale access needed)
+            mint_price: mint_price,
+            author_mint_beneficiary: author_mint_beneficiary,
+            tale_title: utf8(title),
+            tale_description: utf8(description),
+            tale_cover_url: utf8(cover_image_url),
+        };
+        
+        // Emit events for marketplace indexing
+        event::emit(TalePublished {
+            tale_id: tale_id_copy,
+            title: utf8(title),
+            author: tale_author,
+            mint_price,
+            mint_capacity,
+            cover_image_url: utf8(cover_image_url),
+        });
+
+        event::emit(MintCounterCreated {
+            counter_id: counter_id_copy,
+            tale_id: tale_id_copy,
+            max_capacity: mint_capacity,
+            owner: tale_author,
+        });
+        
+        // Transfer Tale to author and SHARE the MintCounter
+        sui_transfer(tale, tale_author);
+        public_share_object(mint_counter); // <--- MAKE SURE THIS LINE IS HERE
+    }
+
+    /// Publishes a new Tale template using separate blob IDs for content and cover image.
+    /// This function is designed for client-side Walrus uploads where blobs are uploaded separately.
+    /// Creates both immutable Tale and separate MintCounter.
+    public fun publish_tale_with_blobs(
+        content_blob_id: vector<u8>,    // Walrus blob ID for the content
+        cover_blob_id: vector<u8>,      // Walrus blob ID for the cover image
+        title: vector<u8>,
+        description: vector<u8>,
+        mint_price: u64,
+        mint_capacity: u64,
+        royalty_fee_bps: u16,
+        ctx: &mut TxContext
+    ) {
+        let tale_author = sender(ctx);
+        
+        // Construct Walrus URL from cover blob ID
+        let cover_image_url = construct_walrus_url(cover_blob_id);
+        
+        // Create the immutable Tale template
+        let tale_id = object::new(ctx);
+        let tale_id_copy = object::uid_to_inner(&tale_id);
+        let tale = Tale {
+            id: tale_id,
+            blob_id: utf8(content_blob_id),          // Content blob ID
+            title: utf8(title),
+            author: tale_author,
+            description: utf8(description),
+            cover_image_url: cover_image_url,        // Constructed Walrus URL
+            mint_price: mint_price,
+            mint_capacity: mint_capacity,
+            // No minted_count - Tale is immutable
+            author_mint_beneficiary: tale_author,    // Author is the beneficiary
+            royalty_fee_bps: royalty_fee_bps,
+            royalty_beneficiary: tale_author,        // Author gets royalties
+        };
+
+        // Create separate MintCounter for tracking mints
+        let counter_id = object::new(ctx);
+        let counter_id_copy = object::uid_to_inner(&counter_id);
+        let mint_counter = MintCounter {
+            id: counter_id,
+            tale_id: tale_id_copy,
+            current_count: 0,                        // Start with 0 - no NFT minted yet
+            max_capacity: mint_capacity,
+            owner: tale_author,
+            // Duplicate Tale data for standalone minting (no Tale access needed)
+            mint_price: mint_price,
+            author_mint_beneficiary: tale_author,    // Author is beneficiary
+            tale_title: utf8(title),
+            tale_description: utf8(description),
+            tale_cover_url: cover_image_url,         // Constructed Walrus URL
+        };
+
+        // Emit events
+        event::emit(TalePublished {
+            tale_id: tale_id_copy,
+            title: utf8(title),
+            author: tale_author,
+            mint_price,
+            mint_capacity,
+            cover_image_url,
+        });
+
+        event::emit(MintCounterCreated {
+            counter_id: counter_id_copy,
+            tale_id: tale_id_copy,
+            max_capacity: mint_capacity,
+            owner: tale_author,
+        });
+
+        // Transfer Tale to author and SHARE the MintCounter
+        sui_transfer(tale, tale_author);
+        public_share_object(mint_counter);
+    }
+
+    /// Publishes a new Tale template and immediately mints the first edition NFT for the author.
+    /// This function combines Tale creation with immediate NFT minting for better UX.
+    /// Creates both immutable Tale and separate MintCounter.
+    public fun publish_tale_with_blobs_and_mint(
+        content_blob_id: vector<u8>,    // Walrus blob ID for the content
+        cover_blob_id: vector<u8>,      // Walrus blob ID for the cover image
+        title: vector<u8>,
+        description: vector<u8>,
+        mint_price: u64,
+        mint_capacity: u64,
+        royalty_fee_bps: u16,
+        platform_fee: u64,              // Platform's cut from the mint_price (in MIST)
+        platform_wallet_address: address, // Address where platform fee is sent
+        payment: Coin<SUI>,             // Payment from the user (must equal mint_price)
+        ctx: &mut TxContext
+    ) {
+        let tale_author = sender(ctx);
+
+        // Check payment amount
+        assert!(coin::value(&payment) == mint_price, EIncorrectPaymentAmount);
+
+        let author_share = mint_price - platform_fee;
+        assert!(author_share >= 0, EPlatformFeeExceedsPrice); // platform_fee cannot be > mint_price
+        
+        // Construct Walrus URL from cover blob ID
+        let cover_image_url = construct_walrus_url(cover_blob_id);
+        
+        // Create the immutable Tale template
+        let tale_id = object::new(ctx);
+        let tale_id_copy = object::uid_to_inner(&tale_id);
+        let tale = Tale {
+            id: tale_id,
+            blob_id: utf8(content_blob_id),          // Content blob ID
+            title: utf8(title),
+            author: tale_author,
+            description: utf8(description),
+            cover_image_url: cover_image_url,        // Constructed Walrus URL
+            mint_price: mint_price,
+            mint_capacity: mint_capacity,
+            // No minted_count - Tale is immutable
+            author_mint_beneficiary: tale_author,    // Author is the beneficiary
+            royalty_fee_bps: royalty_fee_bps,
+            royalty_beneficiary: tale_author,        // Author gets royalties
+        };
+
+        // Create separate MintCounter for tracking mints
+        let counter_id = object::new(ctx);
+        let counter_id_copy = object::uid_to_inner(&counter_id);
+        let mint_counter = MintCounter {
+            id: counter_id,
+            tale_id: tale_id_copy,
+            current_count: 1,                        // Start with 1 since we're minting first edition
+            max_capacity: mint_capacity,
+            owner: tale_author,
+            // Duplicate Tale data for standalone minting (no Tale access needed)
+            mint_price: mint_price,
+            author_mint_beneficiary: tale_author,    // Author is beneficiary
+            tale_title: utf8(title),
+            tale_description: utf8(description),
+            tale_cover_url: cover_image_url,         // Constructed Walrus URL
+        };
+
+        // Emit events
+        event::emit(TalePublished {
+            tale_id: tale_id_copy,
+            title: utf8(title),
+            author: tale_author,
+            mint_price,
+            mint_capacity,
+            cover_image_url,
+        });
+
+        event::emit(MintCounterCreated {
+            counter_id: counter_id_copy,
+            tale_id: tale_id_copy,
+            max_capacity: mint_capacity,
+            owner: tale_author,
+        });
+
+        // Pay platform fee
+        let platform_payment_coin = coin::split(&mut payment, platform_fee, ctx);
+        public_transfer(platform_payment_coin, platform_wallet_address);
+        
+        // Pay author's share (the remainder of the payment coin)
+        public_transfer(payment, tale_author);
+
+        // Create the first edition NFT for the author
+        let nft_id = object::new(ctx);
+        let nft_id_copy = object::uid_to_inner(&nft_id);
+        let first_edition = TaleEditionNFT {
+            id: nft_id,
+            name: utf8(title),                       // Use title as NFT name
+            description: utf8(description),
+            url: cover_image_url,                    // Use constructed Walrus URL
+            original_tale_id: tale_id_copy,          // Reference to the Tale template
+            edition_number: 1,                       // This is edition #1
+        };
+
+        // Emit mint event
+        event::emit(TaleEditionMinted {
+            nft_id: nft_id_copy,
+            tale_id: tale_id_copy,
+            edition_number: 1,
+            minter: tale_author,
+            mint_price: mint_price,
+        });
+
+        // Transfer objects to author
+        sui_transfer(tale, tale_author);
+        public_share_object(mint_counter);
+        sui_transfer(first_edition, tale_author);
+    }
+
+    /// Helper function to construct Walrus URL from blob ID
+    fun construct_walrus_url(blob_id: vector<u8>): String {
+        let base_url = b"https://aggregator.walrus-testnet.walrus.space/v1/blobs/";
+        let url_bytes = base_url;
+        
+        // Append blob_id to base URL
+        let i = 0;
+        while (i < std::vector::length(&blob_id)) {
+            std::vector::push_back(&mut url_bytes, *std::vector::borrow(&blob_id, i));
+            i = i + 1;
+        };
+        
+        utf8(url_bytes)
+    }
+
+    /// Mints a new edition (NFT) of an existing Tale using standalone MintCounter.
+    /// NO Tale object access needed - all data stored in MintCounter!
+    /// This completely eliminates stale object reference errors.
+    public fun mint_tale_edition(
+        counter: &mut MintCounter,       // Mutable counter - contains all needed data
+        platform_fee: u64,              // Platform's cut from the mint_price (in MIST)
+        platform_wallet_address: address, // Address where platform fee is sent
+        payment: Coin<SUI>,             // Payment from the user (must equal counter.mint_price)
+        ctx: &mut TxContext
+    ) {
+        // Check mint capacity
+        assert!(counter.current_count < counter.max_capacity, EMaximumCapacityReached);
+        assert!(coin::value(&payment) == counter.mint_price, EIncorrectPaymentAmount);
+
+        let author_share = counter.mint_price - platform_fee;
+        assert!(author_share >= 0, EPlatformFeeExceedsPrice); // platform_fee cannot be > mint_price
+
+        // Increment counter first - this is the ONLY mutable operation
+        counter.current_count = counter.current_count + 1;
+        let edition_number = counter.current_count;
+        
+        let minter = sender(ctx);
+        let nft_id = object::new(ctx);
+        let nft_id_copy = object::uid_to_inner(&nft_id);
+
+        // Pay platform fee
+        let platform_payment_coin = coin::split(&mut payment, platform_fee, ctx);
+        public_transfer(platform_payment_coin, platform_wallet_address);
+        
+        // Pay author's share (the remainder of the payment coin)
+        public_transfer(payment, counter.author_mint_beneficiary);
+
+        // Emit event for marketplace indexing
+        event::emit(TaleEditionMinted {
+            nft_id: nft_id_copy,
+            tale_id: counter.tale_id,    // Use Tale ID from counter (no Tale object access!)
+            edition_number,
+            minter,
+            mint_price: counter.mint_price,
+        });
+
+        // Create the TaleEditionNFT with proper naming
+        public_transfer(
+            TaleEditionNFT {
+                id: nft_id,
+                name: counter.tale_title,
+                description: counter.tale_description,
+                url: counter.tale_cover_url,
+                original_tale_id: counter.tale_id,
+                edition_number,
+            },
+            minter // Transfer the NFT to the minter
+        );
+    }
+    
+    /// Get Tale + MintCounter information (main function for off-chain services)
+    /// Returns: (title, description, cover_image_url, mint_price, mint_capacity, current_count, author, royalty_fee_bps)
+    public fun get_tale_info(tale: &Tale, counter: &MintCounter): (String, String, String, u64, u64, u64, address, u16) {
+        // Verify counter belongs to this Tale
+        assert!(counter.tale_id == object::id(tale), ECounterTaleMismatch);
+        
+        (
+            tale.title,
+            tale.description, 
+            tale.cover_image_url,
+            tale.mint_price,
+            tale.mint_capacity,
+            counter.current_count,    // Current minted count from counter
+            tale.author,
+            tale.royalty_fee_bps
+        )
+    }
+}

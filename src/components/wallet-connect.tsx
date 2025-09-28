@@ -35,6 +35,7 @@ export function WalletConnect() {
         description: "Address copied to clipboard!",
       });
     } catch (error) {
+      console.error('Failed to copy address:', error);
       toast({
         title: "Error",
         description: "Failed to copy address",

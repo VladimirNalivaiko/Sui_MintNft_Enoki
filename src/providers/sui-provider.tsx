@@ -18,7 +18,6 @@ export function SuiProvider({ children }: SuiProviderProps) {
       <WalletProvider 
         autoConnect={true}
         storageKey="sui-mint-nft-wallet"
-        features={['sui:signAndExecuteTransactionBlock']}
       >
         {children}
       </WalletProvider>
