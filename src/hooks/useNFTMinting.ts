@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useCurrentAccount, useSignTransactionBlock, useSuiClient } from '@mysten/dapp-kit';
 import { nftFactoryContract } from '../lib/contract';
 import { NFTInfo } from '../types/collection';
@@ -94,6 +94,9 @@ export function useNFTMinting(collectionId: string | null) {
         // Update counter locally
         console.log('✅ NFT minted successfully, edition number:', newNFT.editionNumber);
         
+        // Reload minted NFTs to get the latest data
+        await loadMintedNFTs();
+        
         return newNFT;
       } else {
         throw new Error('Transaction failed');
@@ -130,6 +133,15 @@ export function useNFTMinting(collectionId: string | null) {
   const clearError = useCallback(() => {
     setError(null);
   }, []);
+
+  // Load minted NFTs when collection changes
+  useEffect(() => {
+    if (collectionId && currentAccount?.address) {
+      loadMintedNFTs();
+    } else {
+      setMintedNFTs([]);
+    }
+  }, [collectionId, currentAccount?.address, loadMintedNFTs]);
 
   return {
     isMinting,

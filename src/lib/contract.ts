@@ -15,20 +15,20 @@ import {
 // Re-export types for backward compatibility
 export type { CollectionInfo, Collection, MintCounter, NFTInfo, CollectionCreationParams };
 
-// Contract constants
-export const NFT_FACTORY_PACKAGE_ID = import.meta.env.VITE_NFT_FACTORY_PACKAGE_ID || '0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3';
+// Contract constants - loaded from environment variables
+export const NFT_FACTORY_PACKAGE_ID = import.meta.env.VITE_NFT_FACTORY_PACKAGE_ID;
 export const NFT_FACTORY_MODULE = 'nft_factory';
 
 // Global State Object ID (Shared Object)
-export const GLOBAL_STATE_OBJECT_ID = import.meta.env.VITE_GLOBAL_STATE_OBJECT_ID || '0x92da41eff3d36845f6bf63f05311345272d7eb417f885db0ef527c6889f12f01';
+export const GLOBAL_STATE_OBJECT_ID = import.meta.env.VITE_GLOBAL_STATE_OBJECT_ID;
 
 // Validate environment variables
-if (!import.meta.env.VITE_NFT_FACTORY_PACKAGE_ID) {
-  console.warn('⚠️ VITE_NFT_FACTORY_PACKAGE_ID not found in environment variables. Using fallback value.');
+if (!NFT_FACTORY_PACKAGE_ID) {
+  throw new Error('❌ VITE_NFT_FACTORY_PACKAGE_ID is required but not found in environment variables. Please set it in your .env file.');
 }
 
-if (!import.meta.env.VITE_GLOBAL_STATE_OBJECT_ID) {
-  console.warn('⚠️ VITE_GLOBAL_STATE_OBJECT_ID not found in environment variables. Using fallback value.');
+if (!GLOBAL_STATE_OBJECT_ID) {
+  throw new Error('❌ VITE_GLOBAL_STATE_OBJECT_ID is required but not found in environment variables. Please set it in your .env file.');
 }
 
 // Log current configuration

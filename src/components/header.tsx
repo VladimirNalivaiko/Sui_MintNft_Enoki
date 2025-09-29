@@ -5,10 +5,9 @@ import { Image } from 'lucide-react';
 interface HeaderProps {
   currentPage: Page;
   onPageChange: (page: Page) => void;
-  onCreateCollection?: () => void;
 }
 
-export function Header({ currentPage, onPageChange, onCreateCollection }: HeaderProps) {
+export function Header({ currentPage, onPageChange }: HeaderProps) {
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4 py-4">
@@ -23,7 +22,6 @@ export function Header({ currentPage, onPageChange, onCreateCollection }: Header
             <Navigation 
               currentPage={currentPage} 
               onPageChange={onPageChange}
-              onCreateCollection={onCreateCollection}
             />
           </div>
           <WalletConnect />
