@@ -1,193 +1,147 @@
-# SUI NFT Mint with Enoki
+# 🎨 NFT Factory - Sui Blockchain
 
-A modern web application for minting NFTs on the Sui blockchain with gasless transactions powered by Enoki.
+A modern NFT minting application built on Sui blockchain with Enoki integration for sponsored transactions.
 
-## Features
+## ✨ Features
 
-- 🎨 **Modern Dark UI** - Beautiful interface inspired by shadcn/ui dashboard
-- 🔗 **Wallet Integration** - Connect with Sui wallets (Sui Wallet, Suiet, etc.)
-- 🚀 **Gasless Minting** - All transactions sponsored through Enoki
-- 📱 **Responsive Design** - Works on desktop and mobile devices
-- 🖼️ **NFT Gallery** - View your minted NFTs
-- ⚡ **Fast & Reliable** - Built with React, TypeScript, and Vite
+- 🚀 **Create NFT Collections** - Deploy your own NFT collections on Sui
+- 🎯 **Mint NFTs** - Mint individual NFTs from your collections
+- 💰 **Sponsored Transactions** - Gas-free transactions with Enoki integration
+- 🔗 **Wallet Integration** - Connect with Sui wallets
+- 📱 **Responsive Design** - Works on desktop and mobile
+- ⚡ **Real-time Updates** - Live collection and NFT data
 
-## Tech Stack
+## 🚀 Live Demo
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **UI Components**: shadcn/ui + Tailwind CSS
-- **Blockchain**: Sui dApp Kit
-- **Gas Sponsorship**: Enoki
-- **Move Contract**: Custom NFT minting module
+**[View Live Application](https://your-app-url.vercel.app)**
 
-## Prerequisites
+## 🛠 Tech Stack
+
+- **Frontend**: React + TypeScript + Vite
+- **Blockchain**: Sui blockchain (testnet)
+- **Wallet**: Sui Dapp Kit
+- **Sponsorship**: Enoki API
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom components with Lucide icons
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 - Node.js 18+ 
 - npm or yarn
-- Sui CLI (for contract deployment)
-- Enoki API key
+- Sui wallet (Sui Wallet, Suiet, etc.)
 
-## Setup Instructions
+### Installation
 
-### 1. Clone and Install
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/VladimirNalivaiko/Sui_MintNft_Enoki.git
+   cd Sui_MintNft_Enoki
+   ```
 
-```bash
-git clone <your-repo-url>
-cd SUI_MintNft_Enoki
-npm install
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### 2. Environment Configuration
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` file with your configuration:
+   ```env
+   VITE_SUI_NETWORK=testnet
+   VITE_NFT_FACTORY_PACKAGE_ID=your_package_id
+   VITE_GLOBAL_STATE_OBJECT_ID=your_global_state_id
+   VITE_ENOKI_API_KEY=your_enoki_api_key
+   ```
 
-Create a `.env` file in the root directory:
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-```env
-VITE_ENOKI_API_KEY=your_enoki_api_key_here
-VITE_SUI_NETWORK=testnet
-```
+5. **Open in browser**
+   Navigate to `http://localhost:5173`
 
-### 3. Deploy Move Contract
+## 🔧 Configuration
 
-```bash
-# Navigate to move directory
-cd move/nft_mint
+### Environment Variables
 
-# Deploy to testnet
-sui client publish --gas-budget 100000000
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_SUI_NETWORK` | Sui network (testnet/mainnet) | Yes |
+| `VITE_NFT_FACTORY_PACKAGE_ID` | NFT Factory contract package ID | Yes |
+| `VITE_GLOBAL_STATE_OBJECT_ID` | Global state object ID | Yes |
+| `VITE_ENOKI_API_KEY` | Enoki API key for sponsored transactions | Yes |
 
-# Note the package ID and update it in your frontend code
-```
+### Enoki Setup
 
-### 4. Update Contract Address
+1. Get your API key from [Enoki Dashboard](https://enoki.xyz)
+2. Add it to your `.env` file
+3. Sponsored transactions will work automatically!
 
-After deployment, update the contract address in your frontend code:
+## 📱 Usage
 
-```typescript
-// In src/lib/contract.ts or similar
-export const NFT_CONTRACT_PACKAGE_ID = "0x..."; // Your deployed package ID
-```
+1. **Connect Wallet** - Click "Connect Wallet" and select your Sui wallet
+2. **Create Collection** - Fill out the collection form with name, description, image, and max supply
+3. **Mint NFTs** - Select a collection and mint individual NFTs
+4. **View NFTs** - Check your minted NFTs in the "My NFTs" section
 
-### 5. Start Development Server
+## 🏗 Smart Contract
 
-```bash
-npm run dev
-```
+The application uses a custom Move smart contract deployed on Sui testnet:
 
-Visit `http://localhost:5173` to see the application.
+- **Package ID**: `0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3`
+- **Functions**: Create collections, mint NFTs, manage editions
+- **Events**: Collection creation and NFT minting events
 
-## Project Structure
+## 🚀 Deployment
 
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   ├── header.tsx      # App header with navigation
-│   ├── nft-mint-form.tsx # NFT minting form
-│   └── wallet-connect.tsx # Wallet connection
-├── pages/              # Page components
-│   ├── home.tsx        # Home page with minting
-│   └── my-nfts.tsx     # NFT gallery page
-├── providers/          # React context providers
-│   ├── sui-provider.tsx # Sui blockchain provider
-│   └── query-provider.tsx # React Query provider
-├── types/              # TypeScript type definitions
-└── lib/                # Utility functions
+### Vercel (Recommended)
 
-move/
-└── nft_mint/           # Move smart contract
-    ├── Move.toml       # Move package config
-    └── sources/
-        └── nft_mint.move # NFT minting contract
-```
+1. Fork this repository
+2. Go to [Vercel](https://vercel.com)
+3. Import your forked repository
+4. Add environment variables in Vercel dashboard
+5. Deploy!
 
-## Move Contract
+### Netlify
 
-The Move contract includes:
+1. Fork this repository
+2. Go to [Netlify](https://netlify.com)
+3. Connect your GitHub repository
+4. Set build command: `npm run build`
+5. Set publish directory: `dist`
+6. Add environment variables
+7. Deploy!
 
-- **Shared Object Collection** - Allows minting from any wallet
-- **Unique NFT IDs** - Each NFT has a unique identifier
-- **Metadata Support** - Name, description, and image URL
-- **Events** - Emit events for NFT creation and collection info
-
-### Key Functions
-
-- `init()` - Initialize the collection (deploy time)
-- `mint_nft()` - Mint a new NFT
-- `get_collection_info()` - Get collection statistics
-- `get_nft_info()` - Get specific NFT details
-
-## Enoki Integration
-
-This project uses Enoki for gasless transactions:
-
-1. **API Key Setup** - Configure your Enoki API key in `.env`
-2. **Transaction Sponsorship** - All minting transactions are sponsored
-3. **Testnet Only** - Currently configured for Sui testnet
-
-## Usage
-
-1. **Connect Wallet** - Click "Connect Wallet" to connect your Sui wallet
-2. **Mint NFT** - Fill in the form with NFT details and click "Mint NFT"
-3. **View NFTs** - Navigate to "My NFTs" to see your minted NFTs
-4. **Gasless** - All transactions are sponsored, no gas fees required!
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-### Adding New Features
-
-1. **New Pages** - Add to `src/pages/` and update navigation
-2. **New Components** - Add to `src/components/`
-3. **Contract Changes** - Update Move contract and redeploy
-
-## Deployment
-
-### Frontend Deployment
-
-The frontend can be deployed to any static hosting service:
-
-- Vercel
-- Netlify
-- GitHub Pages
-- AWS S3 + CloudFront
-
-### Contract Deployment
-
-Deploy the Move contract to your desired Sui network:
-
-```bash
-# Testnet
-sui client publish --gas-budget 100000000
-
-# Mainnet (when ready)
-sui client publish --gas-budget 100000000 --network mainnet
-```
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## 🙏 Acknowledgments
 
-For issues and questions:
+- [Sui Blockchain](https://sui.io) - The underlying blockchain
+- [Enoki](https://enoki.xyz) - Sponsored transactions
+- [Sui Dapp Kit](https://github.com/MystenLabs/sui/tree/main/sdk/dapp-kit) - Wallet integration
+- [Vite](https://vitejs.dev) - Build tool
+- [React](https://reactjs.org) - UI framework
 
-- Create an issue in this repository
-- Check Sui documentation: https://docs.sui.io/
-- Check Enoki documentation: https://docs.enoki.network/
+## 📞 Support
+
+If you have any questions or need help, please open an issue on GitHub.
 
 ---
 
-Built with ❤️ for the Sui ecosystem
+**Made with ❤️ for the Sui ecosystem**
