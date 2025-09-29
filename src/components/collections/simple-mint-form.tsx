@@ -12,7 +12,7 @@ export function SimpleMintForm() {
     isMinting, 
     mintedNFTs, 
     error, 
-    mintEdition, 
+    mintEditionSponsored, 
     loadMintedNFTs, 
     clearError 
   } = useNFTMinting(selectedCollection?.id || null);
@@ -49,7 +49,7 @@ export function SimpleMintForm() {
   const handleMint = async () => {
     if (!selectedCollection) return;
 
-    const result = await mintEdition(
+    const result = await mintEditionSponsored(
       selectedCollection.name,
       selectedCollection.description,
       selectedCollection.imageUrl,
@@ -58,7 +58,7 @@ export function SimpleMintForm() {
     
     if (result && selectedCollection) {
       // Success - the hook will update the state
-      console.log('Successfully minted NFT:', result);
+      console.log('Successfully minted NFT with Enoki sponsorship:', result);
       
       // Update the collection edition count
       updateCollectionEdition(selectedCollection.id, result.editionNumber);
@@ -96,7 +96,7 @@ export function SimpleMintForm() {
           Mint NFT
         </CardTitle>
         <CardDescription>
-          Collection: <span className="font-medium">{selectedCollection.name}</span>
+          Collection: <span className="font-medium">{selectedCollection.name}</span> (sponsored by Enoki - TEST MODE)
         </CardDescription>
       </CardHeader>
       
@@ -181,7 +181,7 @@ export function SimpleMintForm() {
           ) : (
             <>
               <Zap className="h-4 w-4 mr-2" />
-              Mint Edition #{selectedCollection.currentEdition + 1}
+              Mint Edition #{selectedCollection.currentEdition + 1} (Free - Test)
             </>
           )}
         </Button>

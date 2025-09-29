@@ -3,6 +3,7 @@ import { useSuiClient } from '@mysten/dapp-kit';
 import { useCurrentAccount, useSignTransactionBlock } from '@mysten/dapp-kit';
 import { nftFactoryContract } from '../lib/contract';
 import { CollectionInfo, CollectionCreationParams } from '../types/collection';
+import { waitForTransactionCompletion } from '../lib/enoki';
 
 export function useCollections() {
   const [collections, setCollections] = useState<CollectionInfo[]>([]);
@@ -122,7 +123,71 @@ export function useCollections() {
   }, [currentAccount?.address, selectedCollection, nftFactoryContract]);
 
   /**
-   * Create a new collection
+   * Create a new collection with Enoki sponsorship
+   */
+  const createCollectionSponsored = useCallback(async (params: CollectionCreationParams): Promise<CollectionInfo | null> => {
+    if (!currentAccount?.address) {
+      setError('Wallet not connected');
+      return null;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      console.log('🚀 Creating collection with Enoki sponsorship...');
+      console.log('🔍 Client available:', !!client);
+      
+      if (!client) {
+        throw new Error('Sui client not available');
+      }
+      
+      const result = await nftFactoryContract.createCollectionSponsored(
+        params,
+        'testnet',
+        currentAccount.address,
+        client
+      );
+
+      console.log('🔍 Sponsored collection creation result:', result);
+
+      if (result.sponsored) {
+        // Wait for transaction completion
+        console.log('⏳ Waiting for collection creation completion...');
+        const finalStatus = await waitForTransactionCompletion(result.digest);
+        
+        if (finalStatus.status === 'success') {
+          console.log('✅ Collection created successfully with Enoki sponsorship, refreshing collections...');
+          
+          // Reload collections after successful creation
+          await refreshCollections();
+          console.log('✅ Collections refreshed after creation');
+          
+          // Return the newly created collection
+          const updatedCollections = await nftFactoryContract.getUserCollectionsFromEvents(currentAccount.address);
+          if (updatedCollections.length > 0) {
+            return updatedCollections[0];
+          }
+          
+          return null;
+        } else {
+          throw new Error(`Collection creation failed: ${finalStatus.error || 'Unknown error'}`);
+        }
+      } else {
+        throw new Error('Collection creation was not sponsored by Enoki');
+      }
+    } catch (err) {
+      console.error('Failed to create collection with Enoki:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create collection with Enoki');
+    } finally {
+      setIsLoading(false);
+    }
+
+    return null;
+  }, [currentAccount?.address, refreshCollections]);
+
+  /**
+   * Create a new collection (legacy method)
    */
   const createCollection = useCallback(async (params: CollectionCreationParams): Promise<CollectionInfo | null> => {
     if (!currentAccount?.address || !signTransactionBlock) {
@@ -238,6 +303,7 @@ export function useCollections() {
     error,
     loadCollections,
     createCollection,
+    createCollectionSponsored,
     selectCollection,
     refreshCollections,
     updateCollectionEdition,

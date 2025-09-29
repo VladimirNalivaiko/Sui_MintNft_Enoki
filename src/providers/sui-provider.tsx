@@ -1,6 +1,7 @@
 import { SuiClientProvider, WalletProvider } from '@mysten/dapp-kit';
 import { getFullnodeUrl } from '@mysten/sui/client';
 import { ReactNode } from 'react';
+import { EnokiWalletRegistry } from '../components/enoki-wallet-registry';
 
 interface SuiProviderProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ const networks = {
 export function SuiProvider({ children }: SuiProviderProps) {
   return (
     <SuiClientProvider networks={networks} defaultNetwork="testnet">
+      <EnokiWalletRegistry />
       <WalletProvider 
         autoConnect={true}
         storageKey="sui-mint-nft-wallet"

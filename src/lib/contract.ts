@@ -11,6 +11,10 @@ import {
   MintCounterCreatedEvent,
   CollectionEditionUpdatedEvent
 } from '../types/collection';
+import { 
+  executeSponsoredTransaction,
+  EnokiSponsorResponse 
+} from './enoki';
 
 // Re-export types for backward compatibility
 export type { CollectionInfo, Collection, MintCounter, NFTInfo, CollectionCreationParams };
@@ -109,6 +113,41 @@ export class NFTFactoryContract {
   }
 
   /**
+   * Create a new collection with Enoki sponsorship
+   */
+  async createCollectionSponsored(
+    params: CollectionCreationParams,
+    network: 'testnet' | 'mainnet' = 'testnet',
+    userAddress?: string,
+    suiClient?: any
+  ): Promise<EnokiSponsorResponse> {
+    const txb = new Transaction();
+
+    // Prepare arguments
+    console.log('🔄 createCollectionSponsored: Preparing arguments with params:', params);
+    
+    const name = txb.pure.string(params.name);
+    const description = txb.pure.string(params.description);
+    const imageUrl = txb.pure.string(params.imageUrl);
+    const maxSupply = params.maxSupply ? txb.pure.option('u64', params.maxSupply) : txb.pure.option('u64', null);
+
+    // Call create_collection function
+    txb.moveCall({
+      target: CONTRACT_FUNCTIONS.CREATE_COLLECTION,
+      arguments: [
+        txb.object(GLOBAL_STATE_OBJECT_ID), // GlobalState
+        name,
+        description,
+        imageUrl,
+        maxSupply,
+      ],
+    });
+
+    console.log('🚀 createCollectionSponsored: Executing sponsored transaction...');
+    return await executeSponsoredTransaction(txb, network, userAddress, suiClient);
+  }
+
+  /**
    * Mint a new edition from a collection
    */
   async mintEdition(
@@ -135,6 +174,38 @@ export class NFTFactoryContract {
     });
 
     return await signAndExecute(txb);
+  }
+
+  /**
+   * Mint a new edition from a collection with Enoki sponsorship
+   */
+  async mintEditionSponsored(
+    counterId: string,
+    name: string,
+    description: string,
+    imageUrl: string,
+    symbol: string,
+    network: 'testnet' | 'mainnet' = 'testnet',
+    userAddress?: string,
+    suiClient?: any
+  ): Promise<EnokiSponsorResponse> {
+    const txb = new Transaction();
+
+    // Call mint_edition function with metadata
+    txb.moveCall({
+      target: CONTRACT_FUNCTIONS.MINT_EDITION,
+      arguments: [
+        txb.object(GLOBAL_STATE_OBJECT_ID), // GlobalState
+        txb.object(counterId), // MintCounter
+        txb.pure.string(name), // Name
+        txb.pure.string(description), // Description
+        txb.pure.string(imageUrl), // Image URL
+        txb.pure.string(symbol), // Symbol
+      ],
+    });
+
+    console.log('🚀 mintEditionSponsored: Executing sponsored transaction...');
+    return await executeSponsoredTransaction(txb, network, userAddress, suiClient);
   }
 
   /**
@@ -487,10 +558,19 @@ export class NFTFactoryContract {
       
       console.log('🔍 Found events:', events.data.length);
       
-      // Filter events by user
+      // Filter events by user - for sponsored transactions, creator might be Enoki's address
+      // So we need to check if the user is in the allowedAddresses or use a different approach
+      console.log('🔍 First event structure:', events.data[0]?.parsedJson);
+      console.log('🔍 Looking for user:', userAddress);
+      
+      // For now, let's show all events and see what we can work with
       const userEvents = events.data.filter(event => {
         const parsedJson = event.parsedJson as CollectionCreatedEvent;
-        return parsedJson?.creator === userAddress;
+        console.log('🔍 Event creator:', parsedJson?.creator, 'vs user:', userAddress);
+        console.log('🔍 Full event data:', JSON.stringify(parsedJson, null, 2));
+        // For sponsored transactions, we might need to check if user is in allowedAddresses
+        // or use a different field. Let's temporarily show all events to debug
+        return true; // Show all events for now
       });
       
       console.log('🔍 Filtered events for user:', userEvents.length);

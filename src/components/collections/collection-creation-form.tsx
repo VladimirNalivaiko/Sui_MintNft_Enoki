@@ -11,7 +11,7 @@ interface CollectionCreationFormProps {
 }
 
 export function CollectionCreationForm({ onClose }: CollectionCreationFormProps) {
-  const { createCollection, isLoading } = useCollections();
+  const { createCollectionSponsored, isLoading } = useCollections();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -78,14 +78,14 @@ export function CollectionCreationForm({ onClose }: CollectionCreationFormProps)
     }
 
     try {
-      const result = await createCollection(params);
+      const result = await createCollectionSponsored(params);
       if (result) {
-        console.log('✅ Collection creation form: Collection created successfully, closing form');
+        console.log('✅ Collection creation form: Collection created successfully with Enoki sponsorship, closing form');
         onClose();
       }
     } catch (err) {
-      console.error('❌ Collection creation form: Error creating collection:', err);
-      setErrors({ general: err instanceof Error ? err.message : 'Failed to create collection' });
+      console.error('❌ Collection creation form: Error creating collection with Enoki:', err);
+      setErrors({ general: err instanceof Error ? err.message : 'Failed to create collection with Enoki sponsorship' });
     }
   };
 
@@ -105,7 +105,7 @@ export function CollectionCreationForm({ onClose }: CollectionCreationFormProps)
             <div>
               <CardTitle>Create Collection</CardTitle>
               <CardDescription>
-                Create a new NFT collection to start minting
+                Create a new NFT collection to start minting (sponsored by Enoki - TEST MODE)
               </CardDescription>
             </div>
             <Button

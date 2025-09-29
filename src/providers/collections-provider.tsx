@@ -3,6 +3,7 @@ import { useSuiClient } from '@mysten/dapp-kit';
 import { useCurrentAccount, useSignTransactionBlock } from '@mysten/dapp-kit';
 import { nftFactoryContract } from '../lib/contract';
 import { CollectionInfo } from '../types/collection';
+import { waitForTransactionCompletion } from '../lib/enoki';
 
 interface CollectionsContextType {
   collections: CollectionInfo[];
@@ -11,6 +12,12 @@ interface CollectionsContextType {
   error: string | null;
   loadCollections: () => Promise<void>;
   createCollection: (params: {
+    name: string;
+    description: string;
+    imageUrl: string;
+    maxSupply?: number;
+  }) => Promise<CollectionInfo | null>;
+  createCollectionSponsored: (params: {
     name: string;
     description: string;
     imageUrl: string;
@@ -45,6 +52,9 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
   const [error, setError] = useState<string | null>(null);
 
   const loadCollections = useCallback(async () => {
+    console.log('🔍 loadCollections: Client available:', !!client);
+    console.log('🔍 loadCollections: Account available:', !!currentAccount?.address);
+    
     if (!client || !currentAccount?.address) {
       console.log('❌ loadCollections: No client or account available');
       return;
@@ -138,6 +148,73 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
     }
   }, [client, signTransactionBlock, currentAccount, refreshCollections]);
 
+  const createCollectionSponsored = useCallback(async (params: {
+    name: string;
+    description: string;
+    imageUrl: string;
+    maxSupply?: number;
+  }): Promise<CollectionInfo | null> => {
+    if (!currentAccount?.address) {
+      setError('Wallet not connected');
+      return null;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      console.log('🚀 Creating collection with Enoki sponsorship...');
+      console.log('🔍 Client available:', !!client);
+      console.log('🔍 Account available:', !!currentAccount?.address);
+      
+      if (!client) {
+        throw new Error('Sui client not available');
+      }
+      
+      const result = await nftFactoryContract.createCollectionSponsored(
+        params,
+        'testnet',
+        currentAccount.address,
+        client
+      );
+
+      console.log('🔍 Sponsored collection creation result:', result);
+
+      if (result.sponsored) {
+        // Wait for transaction completion
+        console.log('⏳ Waiting for collection creation completion...');
+        const finalStatus = await waitForTransactionCompletion(result.digest);
+        
+        if (finalStatus.status === 'success') {
+          console.log('✅ Collection created successfully with Enoki sponsorship, refreshing collections...');
+          
+          // Reload collections after successful creation
+          await refreshCollections();
+          console.log('✅ Collections refreshed after creation');
+          
+          // Return the newly created collection
+          const updatedCollections = await nftFactoryContract.getUserCollectionsFromEvents(currentAccount.address);
+          if (updatedCollections.length > 0) {
+            return updatedCollections[0];
+          }
+          
+          return null;
+        } else {
+          throw new Error(`Collection creation failed: ${finalStatus.error || 'Unknown error'}`);
+        }
+      } else {
+        throw new Error('Collection creation was not sponsored by Enoki');
+      }
+    } catch (err) {
+      console.error('Failed to create collection with Enoki:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create collection with Enoki');
+    } finally {
+      setIsLoading(false);
+    }
+
+    return null;
+  }, [currentAccount?.address, refreshCollections]);
+
   const selectCollection = useCallback((collection: CollectionInfo | null) => {
     console.log('🔄 selectCollection: Selecting collection:', collection?.id || 'null');
     setSelectedCollection(collection);
@@ -180,6 +257,7 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
     error,
     loadCollections,
     createCollection,
+    createCollectionSponsored,
     selectCollection,
     refreshCollections,
     updateCollectionEdition,
@@ -190,6 +268,7 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
     error,
     loadCollections,
     createCollection,
+    createCollectionSponsored,
     selectCollection,
     refreshCollections,
     updateCollectionEdition,

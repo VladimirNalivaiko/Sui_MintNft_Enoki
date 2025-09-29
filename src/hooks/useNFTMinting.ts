@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useCurrentAccount, useSignTransactionBlock, useSuiClient } from '@mysten/dapp-kit';
 import { nftFactoryContract } from '../lib/contract';
 import { NFTInfo } from '../types/collection';
+import { waitForTransactionCompletion } from '../lib/enoki';
 
 export function useNFTMinting(collectionId: string | null) {
   const [isMinting, setIsMinting] = useState(false);
@@ -13,7 +14,116 @@ export function useNFTMinting(collectionId: string | null) {
   const client = useSuiClient();
 
   /**
-   * Mint a new edition from the selected collection
+   * Mint a new edition from the selected collection with Enoki sponsorship
+   */
+  const mintEditionSponsored = useCallback(async (name: string, description: string, imageUrl: string, symbol: string): Promise<NFTInfo | null> => {
+    if (!collectionId) {
+      setError('No collection selected');
+      return null;
+    }
+
+    if (!currentAccount?.address) {
+      setError('Wallet not connected');
+      return null;
+    }
+
+    setIsMinting(true);
+    setError(null);
+
+    try {
+      console.log('🔍 Starting sponsored mint process for collection:', collectionId);
+      console.log('🔍 Client available:', !!client);
+      
+      if (!client) {
+        throw new Error('Sui client not available');
+      }
+      
+      // Find mint counter for the collection
+      const mintCounter = await nftFactoryContract.getMintCounterByCollection(collectionId, currentAccount.address);
+      console.log('🔍 Found mint counter:', mintCounter);
+
+      if (!mintCounter) {
+        throw new Error('Mint counter not found for this collection');
+      }
+
+      // Mint the edition with Enoki sponsorship
+      console.log('🔍 Calling mintEditionSponsored with counterId:', mintCounter.id);
+      const result = await nftFactoryContract.mintEditionSponsored(
+        mintCounter.id,
+        name,
+        description,
+        imageUrl,
+        symbol,
+        'testnet',
+        currentAccount.address,
+        client
+      );
+      
+      console.log('🔍 Sponsored mint result:', result);
+
+      if (result.sponsored) {
+        // Wait for transaction completion
+        console.log('⏳ Waiting for transaction completion...');
+        const finalStatus = await waitForTransactionCompletion(result.digest);
+        
+        if (finalStatus.status === 'success') {
+          // Get the updated mint counter to get the correct edition number
+          const updatedMintCounter = await nftFactoryContract.getMintCounterInfo(mintCounter.id);
+          const editionNumber = updatedMintCounter ? updatedMintCounter.currentCount : mintCounter.currentCount + 1;
+          
+          // Create NFT info
+          const newNFT: NFTInfo = {
+            id: result.digest, // Use digest as temporary ID
+            collectionId,
+            editionNumber: editionNumber,
+            mintedAt: Date.now(),
+            owner: currentAccount.address,
+            name: name,
+            description: description,
+            imageUrl: imageUrl,
+          };
+
+          setMintedNFTs(prev => [...prev, newNFT]);
+          
+          console.log('✅ NFT minted successfully with Enoki sponsorship, edition number:', newNFT.editionNumber);
+          
+          return newNFT;
+        } else {
+          throw new Error(`Transaction failed: ${finalStatus.error || 'Unknown error'}`);
+        }
+      } else {
+        // Fallback: Enoki not available, but we got a mock response
+        console.warn('⚠️ Enoki not available, using mock response for development');
+        
+        // Create mock NFT info
+        const newNFT: NFTInfo = {
+          id: result.digest,
+          collectionId,
+          editionNumber: mintCounter.currentCount + 1,
+          mintedAt: Date.now(),
+          owner: currentAccount.address,
+          name: name,
+          description: description,
+          imageUrl: imageUrl,
+        };
+
+        setMintedNFTs(prev => [...prev, newNFT]);
+        
+        console.log('✅ NFT minted successfully (mock), edition number:', newNFT.editionNumber);
+        
+        return newNFT;
+      }
+    } catch (err) {
+      console.error('Failed to mint edition with Enoki:', err);
+      setError(err instanceof Error ? err.message : 'Failed to mint edition with Enoki');
+      return null;
+    } finally {
+      setIsMinting(false);
+    }
+  }, [collectionId, currentAccount?.address]);
+
+  /**
+   * Mint a new edition from the selected collection (legacy method)
    */
   const mintEdition = useCallback(async (name: string, description: string, imageUrl: string, symbol: string): Promise<NFTInfo | null> => {
     if (!collectionId) {
@@ -136,6 +246,7 @@ export function useNFTMinting(collectionId: string | null) {
     mintedNFTs,
     error,
     mintEdition,
+    mintEditionSponsored,
     loadMintedNFTs,
     clearError,
   };

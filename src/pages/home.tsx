@@ -4,6 +4,7 @@ import { CollectionsList, SimpleMintForm, CollectionCreationForm } from '../comp
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import { EnokiStatus } from '../components/enoki-status';
 import { Plus, Zap, Layers, ArrowRight } from 'lucide-react';
 
 export function HomePage() {
@@ -39,6 +40,9 @@ export function HomePage() {
           <p className="text-gray-600 max-w-2xl mx-auto">
             Create multiple NFT collections and mint unlimited editions with our simplified platform on Sui blockchain.
           </p>
+          <div className="flex justify-center">
+            <EnokiStatus />
+          </div>
         </div>
 
         {/* Quick Stats */}

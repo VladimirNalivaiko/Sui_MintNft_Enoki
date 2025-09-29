@@ -6,6 +6,7 @@ export type Page = 'home' | 'collections' | 'my-nfts';
 interface NavigationProps {
   currentPage: Page;
   onPageChange: (page: Page) => void;
+  onCreateCollection?: () => void;
 }
 
 export function Navigation({ currentPage, onPageChange }: NavigationProps) {
