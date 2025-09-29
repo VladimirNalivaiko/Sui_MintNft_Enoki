@@ -53,7 +53,7 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
    - Visit [Sui Faucet](https://faucet.sui.io/)
    - Connect your Sui wallet
    - Switch to **testnet** network
-   - Request testnet SUI tokens (usually 10 SUI per request)
+   - Request testnet SUI tokens (usually 1 SUI per request)
    - Wait for transaction confirmation
    
    > **Note**: You may need to request tokens multiple times if you run out during testing.
