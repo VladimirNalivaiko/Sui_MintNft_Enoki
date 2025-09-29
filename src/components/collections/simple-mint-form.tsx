@@ -58,7 +58,6 @@ export function SimpleMintForm() {
     
     if (result && selectedCollection) {
       // Success - the hook will update the state
-      console.log('Successfully minted NFT:', result);
       
       // Update the collection edition count
       updateCollectionEdition(selectedCollection.id, result.editionNumber);

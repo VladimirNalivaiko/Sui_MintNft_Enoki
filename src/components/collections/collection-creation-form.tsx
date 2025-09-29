@@ -53,7 +53,6 @@ export function CollectionCreationForm({ onClose }: CollectionCreationFormProps)
     e.preventDefault();
     
     if (!validateForm()) {
-      console.log('❌ Collection creation form: Form validation failed');
       return;
     }
 
@@ -64,15 +63,8 @@ export function CollectionCreationForm({ onClose }: CollectionCreationFormProps)
       maxSupply: formData.maxSupply ? Number(formData.maxSupply) : undefined,
     };
 
-    console.log('🔄 Collection creation form: Submitting with params:', params);
-
     // Additional validation before sending
     if (!params.name || !params.description || !params.imageUrl) {
-      console.error('❌ Collection creation form: Missing required fields:', {
-        name: params.name,
-        description: params.description,
-        imageUrl: params.imageUrl
-      });
       setErrors({ general: 'All required fields must be filled' });
       return;
     }
@@ -80,11 +72,10 @@ export function CollectionCreationForm({ onClose }: CollectionCreationFormProps)
     try {
       const result = await createCollection(params);
       if (result) {
-        console.log('✅ Collection creation form: Collection created successfully, closing form');
         onClose();
       }
     } catch (err) {
-      console.error('❌ Collection creation form: Error creating collection:', err);
+      console.error('❌ Failed to create collection:', err);
       setErrors({ general: err instanceof Error ? err.message : 'Failed to create collection' });
     }
   };

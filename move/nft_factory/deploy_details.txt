@@ -1,53 +1,16 @@
-vladimirnalivaiko@MacBook-Pro nft_factory % sui client publish
-[warning] Client/Server api version mismatch, client api version : 1.56.2, server api version : 1.57.0
-[Note]: Dependency sources are no longer verified automatically during publication and upgrade. You can pass the `--verify-deps` option if you would like to verify them as part of publication or upgrade.
-[note] Dependencies on Bridge, MoveStdlib, Sui, and SuiSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on MoveStdlib and Sui. Consider removing these dependencies from Move.toml.
-UPDATING GIT DEPENDENCY https://github.com/MystenLabs/sui.git
-INCLUDING DEPENDENCY Sui
-INCLUDING DEPENDENCY MoveStdlib
-BUILDING nft_factory
-warning[Lint W99010]: unnecessary `entry` on a `public` function
-    ┌─ /Users/vladimirnalivaiko/projects/Sui_MintNft_Enoki/move/nft_factory/sources/nft_factory.move:182:12
-    │
-182 │     public entry fun create_collection(
-    │            ^^^^^ `entry` on `public` functions limits composability as it adds restrictions, e.g. the type of each return value must have `drop`. `entry` on `public` is only meaningful in niche scenarios.
-    │
-    = `public` functions can be called from PTBs. `entry` can be used to allow non-`public` functions to be called from PTBs, but it adds restrictions on the usage of input arguments and on the type of return values. Unless this `public` function interacts with an intricate set of other `entry` functions, the `entry` modifier should be removed.
-    = This warning can be suppressed with '#[allow(lint(public_entry))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
-
-warning[Lint W99010]: unnecessary `entry` on a `public` function
-    ┌─ /Users/vladimirnalivaiko/projects/Sui_MintNft_Enoki/move/nft_factory/sources/nft_factory.move:265:12
-    │
-265 │     public entry fun mint_edition(
-    │            ^^^^^ `entry` on `public` functions limits composability as it adds restrictions, e.g. the type of each return value must have `drop`. `entry` on `public` is only meaningful in niche scenarios.
-    │
-    = `public` functions can be called from PTBs. `entry` can be used to allow non-`public` functions to be called from PTBs, but it adds restrictions on the usage of input arguments and on the type of return values. Unless this `public` function interacts with an intricate set of other `entry` functions, the `entry` modifier should be removed.
-    = This warning can be suppressed with '#[allow(lint(public_entry))]' applied to the 'module' or module member ('const', 'fun', or 'struct')
-
-warning[W09002]: unused variable
-    ┌─ /Users/vladimirnalivaiko/projects/Sui_MintNft_Enoki/move/nft_factory/sources/nft_factory.move:381:39
-    │
-381 │     public fun get_all_collection_ids(global_state: &GlobalState): vector<ID> {
-    │                                       ^^^^^^^^^^^^ Unused parameter 'global_state'. Consider removing or prefixing with an underscore: '_global_state'
-    │
-    = This warning can be suppressed with '#[allow(unused_variable)]' applied to the 'module' or module member ('const', 'fun', or 'struct')
-
-Please report feedback on the linter warnings at https://forums.sui.io
-
-Skipping dependency verification
-Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
+Transaction Digest: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt
 ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ Transaction Data                                                                                             │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                   │
 │ Gas Owner: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                │
-│ Gas Budget: 44164800 MIST                                                                                    │
+│ Gas Budget: 42470000 MIST                                                                                    │
 │ Gas Price: 1000 MIST                                                                                         │
 │ Gas Payment:                                                                                                 │
 │  ┌──                                                                                                         │
 │  │ ID: 0xe9f2703b00a914c219179b918640f33c59e8575f5c15633cb2904870442aef7b                                    │
-│  │ Version: 583787303                                                                                        │
-│  │ Digest: GHusZeRHKiNoZVcBBrLsN2zobAtoU1BNrXTDrfDcNtAg                                                      │
+│  │ Version: 583787350                                                                                        │
+│  │ Digest: FjSLwaHfev6U6iYwjSEx8RXySQAJRxTT44kBt1R189yA                                                      │
 │  └──                                                                                                         │
 │                                                                                                              │
 │ Transaction Kind: Programmable                                                                               │
@@ -75,92 +38,92 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 │ ╰─────────────────────────────────────────────────────────────────────────╯                                  │
 │                                                                                                              │
 │ Signatures:                                                                                                  │
-│    hDMofW0CC/Y72X/GfV7G3eZctwYUrUviT4wCZ3iERDphPEmyN8ueAQhYO8OICPZs3ZI9uRo01jOiAx5Me4vNCw==                  │
+│    H5a0rjKCEUCpvWKj/WW8WBHIpMJMVQNWS4jLkWczv9j1nVEsCgkAWDLtZRYFCzrBb4Ggr1j8p/KFEHahUXl3DA==                  │
 │                                                                                                              │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ Transaction Effects                                                                               │
 ├───────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H                                              │
+│ Digest: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt                                              │
 │ Status: Success                                                                                   │
-│ Executed Epoch: 871                                                                               │
+│ Executed Epoch: 872                                                                               │
 │                                                                                                   │
 │ Created Objects:                                                                                  │
 │  ┌──                                                                                              │
-│  │ ID: 0x19ec341deadf6ffb2712a09794195cb71a415d8049ffc1d5ad78cc061d7056d7                         │
+│  │ ID: 0x2ea3daab8cbf21c8d114e79a3421a39fada251b98f59df0ef75b37ac399344d9                         │
+│  │ Owner: Shared( 583787351 )                                                                     │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: FNmGWiGwXVT8vqcefc5FAQ6bersXGcyagYV9wHVSszTo                                           │
+│  └──                                                                                              │
+│  ┌──                                                                                              │
+│  │ ID: 0x434c2163333185d62fc1e1c56bd750931a87bc822c876508a47fe61db01f6b75                         │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: FTJxwHuvHDvFwVcmJqgBaGz1FUs5qBnMxPZkeZW8QECZ                                           │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: 3HDsT9dDJHxs3Jtf5yUfNBiK1oTQSud6XBy1mYamkfpm                                           │
 │  └──                                                                                              │
 │  ┌──                                                                                              │
-│  │ ID: 0x55e77d5da7ee13c90f8f9cb29872f4fb0f577e0f16bc88529cbcab5a37097247                         │
+│  │ ID: 0x48633ac3a53e295273bc50e8a5d29981fe7de95eed58a4a1360ef81ada5afe68                         │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: D1YF2ksRdNGNSoiv89pPmNweiFcymT6h1gdhFfsveBrn                                           │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: 6WbmmgiMaL2fApyxCvJgDHQ5CxxBCYz3XXqZQtYRETxD                                           │
 │  └──                                                                                              │
 │  ┌──                                                                                              │
-│  │ ID: 0x8de184b4cb8fe5296d9c1b96954556f16feda918db868ca5a0da7578aea4fd73                         │
-│  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: GA785LU2zNT6X7CuNzv2HANk3qiiQf9dSsxJSmnBxBuq                                           │
-│  └──                                                                                              │
-│  ┌──                                                                                              │
-│  │ ID: 0x92da41eff3d36845f6bf63f05311345272d7eb417f885db0ef527c6889f12f01                         │
-│  │ Owner: Shared( 583787304 )                                                                     │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: HX9W8RGND2bkueBF5g1QDKFeQmW95BYoWhv5bnQZndTB                                           │
-│  └──                                                                                              │
-│  ┌──                                                                                              │
-│  │ ID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                         │
+│  │ ID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                         │
 │  │ Owner: Immutable                                                                               │
 │  │ Version: 1                                                                                     │
-│  │ Digest: J6oNwffZ2PARueAXtRXcMJFRz97JLtSZjjsAabzDvB64                                           │
+│  │ Digest: 65BZYa2KxsGSA9g3qWVx3R61RpX1K96WPJK48UKXKDAX                                           │
+│  └──                                                                                              │
+│  ┌──                                                                                              │
+│  │ ID: 0xf12884e1aad102e0f699fd9239669d0c511b10f1981179a3461d2b08489015d8                         │
+│  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: 5TLuW1qowRvpQJLv7XGTZBwG9Jujn9zvpEkRwc9ePitz                                           │
 │  └──                                                                                              │
 │ Mutated Objects:                                                                                  │
 │  ┌──                                                                                              │
 │  │ ID: 0xe9f2703b00a914c219179b918640f33c59e8575f5c15633cb2904870442aef7b                         │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: 2aHZ4kbRt81ssBMnB5pXxnfJ9d8g7yH1TJzTuVURDSha                                           │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: BUK3BRpoiocDpWwCowQ2jvF5TCEvPkyPWNY8DnkbUhbh                                           │
 │  └──                                                                                              │
 │ Gas Object:                                                                                       │
 │  ┌──                                                                                              │
 │  │ ID: 0xe9f2703b00a914c219179b918640f33c59e8575f5c15633cb2904870442aef7b                         │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
-│  │ Version: 583787304                                                                             │
-│  │ Digest: 2aHZ4kbRt81ssBMnB5pXxnfJ9d8g7yH1TJzTuVURDSha                                           │
+│  │ Version: 583787351                                                                             │
+│  │ Digest: BUK3BRpoiocDpWwCowQ2jvF5TCEvPkyPWNY8DnkbUhbh                                           │
 │  └──                                                                                              │
 │ Gas Cost Summary:                                                                                 │
-│    Storage Cost: 42164800 MIST                                                                    │
+│    Storage Cost: 40470000 MIST                                                                    │
 │    Computation Cost: 1000000 MIST                                                                 │
 │    Storage Rebate: 978120 MIST                                                                    │
 │    Non-refundable Storage Fee: 9880 MIST                                                          │
 │                                                                                                   │
 │ Transaction Dependencies:                                                                         │
 │    2dkJtqsoQcyCZJvjZnskNVPQeynwVtwCcA9goAru6tTi                                                   │
-│    7yQuUptYFC1uFMhBjaJw7ac88yZivXiN4zn7ditoP9tf                                                   │
 │    Dd9pn1zFcSJjinxQewFd2gQdR4XKsHxFioD5MYnwLZQz                                                   │
+│    H72FoxJaHX9P5wpRjuxmRyRJSUwMCzSXzKBLt1F3uwFC                                                   │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ Transaction Block Events                                                                                                                │
 ├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │  ┌──                                                                                                                                    │
-│  │ EventID: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H:0                                                                              │
-│  │ PackageID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                                                        │
+│  │ EventID: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt:0                                                                              │
+│  │ PackageID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                                                        │
 │  │ Transaction Module: nft_factory                                                                                                      │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                           │
-│  │ EventType: 0x2::display::DisplayCreated<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::NFT>        │
+│  │ EventType: 0x2::display::DisplayCreated<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::NFT>        │
 │  │ ParsedJSON:                                                                                                                          │
 │  │   ┌────┬────────────────────────────────────────────────────────────────────┐                                                        │
-│  │   │ id │ 0x19ec341deadf6ffb2712a09794195cb71a415d8049ffc1d5ad78cc061d7056d7 │                                                        │
+│  │   │ id │ 0x434c2163333185d62fc1e1c56bd750931a87bc822c876508a47fe61db01f6b75 │                                                        │
 │  │   └────┴────────────────────────────────────────────────────────────────────┘                                                        │
 │  └──                                                                                                                                    │
 │  ┌──                                                                                                                                    │
-│  │ EventID: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H:1                                                                              │
-│  │ PackageID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                                                        │
+│  │ EventID: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt:1                                                                              │
+│  │ PackageID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                                                        │
 │  │ Transaction Module: nft_factory                                                                                                      │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                           │
-│  │ EventType: 0x2::display::VersionUpdated<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::NFT>        │
+│  │ EventType: 0x2::display::VersionUpdated<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::NFT>        │
 │  │ ParsedJSON:                                                                                                                          │
 │  │   ┌─────────┬──────────┬───────┬─────────────────────────────────────────────────┐                                                   │
 │  │   │ fields  │ contents │ key   │ name                                            │                                                   │
@@ -195,28 +158,28 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 │  │   │         │          ├───────┼─────────────────────────────────────────────────┤                                                   │
 │  │   │         │          │ value │ Edition #{edition_number}                       │                                                   │
 │  │   ├─────────┼──────────┴───────┴─────────────────────────────────────────────────┤                                                   │
-│  │   │ id      │ 0x19ec341deadf6ffb2712a09794195cb71a415d8049ffc1d5ad78cc061d7056d7 │                                                   │
+│  │   │ id      │ 0x434c2163333185d62fc1e1c56bd750931a87bc822c876508a47fe61db01f6b75 │                                                   │
 │  │   ├─────────┼────────────────────────────────────────────────────────────────────┤                                                   │
 │  │   │ version │ 1                                                                  │                                                   │
 │  │   └─────────┴────────────────────────────────────────────────────────────────────┘                                                   │
 │  └──                                                                                                                                    │
 │  ┌──                                                                                                                                    │
-│  │ EventID: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H:2                                                                              │
-│  │ PackageID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                                                        │
+│  │ EventID: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt:2                                                                              │
+│  │ PackageID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                                                        │
 │  │ Transaction Module: nft_factory                                                                                                      │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                           │
-│  │ EventType: 0x2::display::DisplayCreated<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::Collection> │
+│  │ EventType: 0x2::display::DisplayCreated<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::Collection> │
 │  │ ParsedJSON:                                                                                                                          │
 │  │   ┌────┬────────────────────────────────────────────────────────────────────┐                                                        │
-│  │   │ id │ 0x55e77d5da7ee13c90f8f9cb29872f4fb0f577e0f16bc88529cbcab5a37097247 │                                                        │
+│  │   │ id │ 0xf12884e1aad102e0f699fd9239669d0c511b10f1981179a3461d2b08489015d8 │                                                        │
 │  │   └────┴────────────────────────────────────────────────────────────────────┘                                                        │
 │  └──                                                                                                                                    │
 │  ┌──                                                                                                                                    │
-│  │ EventID: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H:3                                                                              │
-│  │ PackageID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                                                        │
+│  │ EventID: 8UJoJhy72TmFXdQGxY7YvF1Nj9MXGVi3t9fULVMSAMXt:3                                                                              │
+│  │ PackageID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                                                        │
 │  │ Transaction Module: nft_factory                                                                                                      │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                           │
-│  │ EventType: 0x2::display::VersionUpdated<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::Collection> │
+│  │ EventType: 0x2::display::VersionUpdated<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::Collection> │
 │  │ ParsedJSON:                                                                                                                          │
 │  │   ┌─────────┬──────────┬───────┬─────────────────────────────────────────────────┐                                                   │
 │  │   │ fields  │ contents │ key   │ name                                            │                                                   │
@@ -251,7 +214,7 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 │  │   │         │          ├───────┼─────────────────────────────────────────────────┤                                                   │
 │  │   │         │          │ value │ {max_supply}                                    │                                                   │
 │  │   ├─────────┼──────────┴───────┴─────────────────────────────────────────────────┤                                                   │
-│  │   │ id      │ 0x55e77d5da7ee13c90f8f9cb29872f4fb0f577e0f16bc88529cbcab5a37097247 │                                                   │
+│  │   │ id      │ 0xf12884e1aad102e0f699fd9239669d0c511b10f1981179a3461d2b08489015d8 │                                                   │
 │  │   ├─────────┼────────────────────────────────────────────────────────────────────┤                                                   │
 │  │   │ version │ 1                                                                  │                                                   │
 │  │   └─────────┴────────────────────────────────────────────────────────────────────┘                                                   │
@@ -262,36 +225,36 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 ├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Created Objects:                                                                                                                   │
 │  ┌──                                                                                                                               │
-│  │ ObjectID: 0x19ec341deadf6ffb2712a09794195cb71a415d8049ffc1d5ad78cc061d7056d7                                                    │
+│  │ ObjectID: 0x2ea3daab8cbf21c8d114e79a3421a39fada251b98f59df0ef75b37ac399344d9                                                    │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                      │
-│  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )                                   │
-│  │ ObjectType: 0x2::display::Display<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::NFT>         │
-│  │ Version: 583787304                                                                                                              │
-│  │ Digest: FTJxwHuvHDvFwVcmJqgBaGz1FUs5qBnMxPZkeZW8QECZ                                                                            │
+│  │ Owner: Shared( 583787351 )                                                                                                      │
+│  │ ObjectType: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::GlobalState                        │
+│  │ Version: 583787351                                                                                                              │
+│  │ Digest: FNmGWiGwXVT8vqcefc5FAQ6bersXGcyagYV9wHVSszTo                                                                            │
 │  └──                                                                                                                               │
 │  ┌──                                                                                                                               │
-│  │ ObjectID: 0x55e77d5da7ee13c90f8f9cb29872f4fb0f577e0f16bc88529cbcab5a37097247                                                    │
+│  │ ObjectID: 0x434c2163333185d62fc1e1c56bd750931a87bc822c876508a47fe61db01f6b75                                                    │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                      │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )                                   │
-│  │ ObjectType: 0x2::display::Display<0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::Collection>  │
-│  │ Version: 583787304                                                                                                              │
-│  │ Digest: D1YF2ksRdNGNSoiv89pPmNweiFcymT6h1gdhFfsveBrn                                                                            │
+│  │ ObjectType: 0x2::display::Display<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::NFT>         │
+│  │ Version: 583787351                                                                                                              │
+│  │ Digest: 3HDsT9dDJHxs3Jtf5yUfNBiK1oTQSud6XBy1mYamkfpm                                                                            │
 │  └──                                                                                                                               │
 │  ┌──                                                                                                                               │
-│  │ ObjectID: 0x8de184b4cb8fe5296d9c1b96954556f16feda918db868ca5a0da7578aea4fd73                                                    │
+│  │ ObjectID: 0x48633ac3a53e295273bc50e8a5d29981fe7de95eed58a4a1360ef81ada5afe68                                                    │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                      │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )                                   │
 │  │ ObjectType: 0x2::package::UpgradeCap                                                                                            │
-│  │ Version: 583787304                                                                                                              │
-│  │ Digest: GA785LU2zNT6X7CuNzv2HANk3qiiQf9dSsxJSmnBxBuq                                                                            │
+│  │ Version: 583787351                                                                                                              │
+│  │ Digest: 6WbmmgiMaL2fApyxCvJgDHQ5CxxBCYz3XXqZQtYRETxD                                                                            │
 │  └──                                                                                                                               │
 │  ┌──                                                                                                                               │
-│  │ ObjectID: 0x92da41eff3d36845f6bf63f05311345272d7eb417f885db0ef527c6889f12f01                                                    │
+│  │ ObjectID: 0xf12884e1aad102e0f699fd9239669d0c511b10f1981179a3461d2b08489015d8                                                    │
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                      │
-│  │ Owner: Shared( 583787304 )                                                                                                      │
-│  │ ObjectType: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3::nft_factory::GlobalState                        │
-│  │ Version: 583787304                                                                                                              │
-│  │ Digest: HX9W8RGND2bkueBF5g1QDKFeQmW95BYoWhv5bnQZndTB                                                                            │
+│  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )                                   │
+│  │ ObjectType: 0x2::display::Display<0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4::nft_factory::Collection>  │
+│  │ Version: 583787351                                                                                                              │
+│  │ Digest: 5TLuW1qowRvpQJLv7XGTZBwG9Jujn9zvpEkRwc9ePitz                                                                            │
 │  └──                                                                                                                               │
 │ Mutated Objects:                                                                                                                   │
 │  ┌──                                                                                                                               │
@@ -299,14 +262,14 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 │  │ Sender: 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e                                                      │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )                                   │
 │  │ ObjectType: 0x2::coin::Coin<0x2::sui::SUI>                                                                                      │
-│  │ Version: 583787304                                                                                                              │
-│  │ Digest: 2aHZ4kbRt81ssBMnB5pXxnfJ9d8g7yH1TJzTuVURDSha                                                                            │
+│  │ Version: 583787351                                                                                                              │
+│  │ Digest: BUK3BRpoiocDpWwCowQ2jvF5TCEvPkyPWNY8DnkbUhbh                                                                            │
 │  └──                                                                                                                               │
 │ Published Objects:                                                                                                                 │
 │  ┌──                                                                                                                               │
-│  │ PackageID: 0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3                                                   │
+│  │ PackageID: 0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4                                                   │
 │  │ Version: 1                                                                                                                      │
-│  │ Digest: J6oNwffZ2PARueAXtRXcMJFRz97JLtSZjjsAabzDvB64                                                                            │
+│  │ Digest: 65BZYa2KxsGSA9g3qWVx3R61RpX1K96WPJK48UKXKDAX                                                                            │
 │  │ Modules: nft_factory                                                                                                            │
 │  └──                                                                                                                               │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
@@ -316,7 +279,6 @@ Transaction Digest: CuBxPcvJhpDaeamPkqXupNeaWhKd3bcqAYmvUn6zjM9H
 │  ┌──                                                                                              │
 │  │ Owner: Account Address ( 0x352f4f93d09b30c43bfda24bb65648bed7b816b1e64c94bd1f9298de3d291c5e )  │
 │  │ CoinType: 0x2::sui::SUI                                                                        │
-│  │ Amount: -42186680                                                                              │
+│  │ Amount: -40491880                                                                              │
 │  └──                                                                                              │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
-vladimirnalivaiko@MacBook-Pro nft_factory % 

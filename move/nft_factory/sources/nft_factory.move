@@ -323,27 +323,6 @@ module nft_factory::nft_factory {
 
     // === HELPER FUNCTIONS ===
 
-    // Get collection by ID
-    public fun get_collection_by_id(global_state: &GlobalState, collection_id: ID): Option<CollectionInfo> {
-        if (table::contains(&global_state.collections, collection_id)) {
-            let collection_info = table::borrow(&global_state.collections, collection_id);
-            option::some(*collection_info)
-        } else {
-            option::none()
-        }
-    }
-
-    // Get collection information
-    public fun get_collection_info(collection: &Collection): (String, String, String, Option<u64>, address, u64) {
-        (
-            collection.name,
-            collection.description,
-            collection.image_url,
-            collection.max_supply,
-            collection.creator,
-            collection.created_at,
-        )
-    }
 
     // Get counter information
     public fun get_mint_counter_info(counter: &MintCounter): (u64, Option<u64>, address, ID) {
@@ -375,18 +354,14 @@ module nft_factory::nft_factory {
         global_state.collection_count
     }
 
-    // Get all collections (returns vector of collection IDs)
-    // Note: Current Sui Table version does not support key iteration
-    // This function will be implemented later or through events
-    public fun get_all_collection_ids(global_state: &GlobalState): vector<ID> {
-        // For now return empty vector
-        // In future collection IDs can be obtained through events
-        vector::empty<ID>()
-    }
-
-    // Get collection information by ID (public function)
+    // Get collection information by ID
     public fun get_collection_info_by_id(global_state: &GlobalState, collection_id: ID): Option<CollectionInfo> {
-        get_collection_by_id(global_state, collection_id)
+        if (table::contains(&global_state.collections, collection_id)) {
+            let collection_info = table::borrow(&global_state.collections, collection_id);
+            option::some(*collection_info)
+        } else {
+            option::none()
+        }
     }
 
     // Check collection existence
@@ -404,8 +379,4 @@ module nft_factory::nft_factory {
         }
     }
 
-    // Get global edition counter
-    public fun get_global_edition_counter(global_state: &GlobalState): u64 {
-        global_state.global_edition_counter
-    }
 }

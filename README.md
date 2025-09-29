@@ -13,7 +13,7 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
 
 ## 🚀 Live Demo
 
-**[View Live Application](https://your-app-url.vercel.app)**
+**[View Live Application](https://sui-mint-nft-enoki.vercel.app/)**
 
 ## 🛠 Tech Stack
 
@@ -31,6 +31,7 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
 - Node.js 18+ 
 - npm or yarn
 - Sui wallet (Sui Wallet, Suiet, etc.)
+- **Testnet SUI tokens** - Get free testnet tokens from [Sui Faucet](https://faucet.sui.io/)
 
 ### Installation
 
@@ -45,7 +46,19 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
    npm install
    ```
 
-3. **Configure environment variables**
+3. **Get testnet SUI tokens**
+   
+   Before using the application, you need testnet SUI tokens:
+   
+   - Visit [Sui Faucet](https://faucet.sui.io/)
+   - Connect your Sui wallet
+   - Switch to **testnet** network
+   - Request testnet SUI tokens (usually 10 SUI per request)
+   - Wait for transaction confirmation
+   
+   > **Note**: You may need to request tokens multiple times if you run out during testing.
+
+4. **Configure environment variables**
    ```bash
    cp .env.example .env
    ```
@@ -58,30 +71,14 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
    VITE_ENOKI_API_KEY=your_enoki_api_key
    ```
 
-4. **Start development server**
+5. **Start development server**
    ```bash
    npm run dev
    ```
 
-5. **Open in browser**
-   Navigate to `http://localhost:5173`
+6. **Open in browser**
+   Navigate to `http://localhost:{port}`
 
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_SUI_NETWORK` | Sui network (testnet/mainnet) | Yes |
-| `VITE_NFT_FACTORY_PACKAGE_ID` | NFT Factory contract package ID | Yes |
-| `VITE_GLOBAL_STATE_OBJECT_ID` | Global state object ID | Yes |
-| `VITE_ENOKI_API_KEY` | Enoki API key for sponsored transactions | Yes |
-
-### Enoki Setup
-
-1. Get your API key from [Enoki Dashboard](https://enoki.xyz)
-2. Add it to your `.env` file
-3. Sponsored transactions will work automatically!
 
 ## 📱 Usage
 
@@ -94,49 +91,14 @@ A modern NFT minting application built on Sui blockchain with Enoki integration 
 
 The application uses a custom Move smart contract deployed on Sui testnet:
 
-- **Package ID**: `0xd8004005f0860cf71b1278cb32c60fbe307b31dedc80bc1708869015d33e16d3`
+- **Package ID**: `0xc1ec2a4ee4f3b74554fe22b256973b43862a8defbbc7270c19784ebf8cef16d4`
 - **Functions**: Create collections, mint NFTs, manage editions
 - **Events**: Collection creation and NFT minting events
 
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Fork this repository
-2. Go to [Vercel](https://vercel.com)
-3. Import your forked repository
-4. Add environment variables in Vercel dashboard
-5. Deploy!
-
-### Netlify
-
-1. Fork this repository
-2. Go to [Netlify](https://netlify.com)
-3. Connect your GitHub repository
-4. Set build command: `npm run build`
-5. Set publish directory: `dist`
-6. Add environment variables
-7. Deploy!
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Sui Blockchain](https://sui.io) - The underlying blockchain
-- [Enoki](https://enoki.xyz) - Sponsored transactions
-- [Sui Dapp Kit](https://github.com/MystenLabs/sui/tree/main/sdk/dapp-kit) - Wallet integration
-- [Vite](https://vitejs.dev) - Build tool
-- [React](https://reactjs.org) - UI framework
 
 ## 📞 Support
 

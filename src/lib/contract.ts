@@ -31,28 +31,13 @@ if (!GLOBAL_STATE_OBJECT_ID) {
   throw new Error('❌ VITE_GLOBAL_STATE_OBJECT_ID is required but not found in environment variables. Please set it in your .env file.');
 }
 
-// Log current configuration
-console.log('NFT Factory Configuration:', {
-  packageId: NFT_FACTORY_PACKAGE_ID,
-  globalStateObjectId: GLOBAL_STATE_OBJECT_ID,
-  network: import.meta.env.VITE_SUI_NETWORK || 'testnet'
-});
-
-// Additional environment variables diagnostics
-console.log('🔧 Environment variables check:', {
-  VITE_NFT_FACTORY_PACKAGE_ID: import.meta.env.VITE_NFT_FACTORY_PACKAGE_ID,
-  VITE_GLOBAL_STATE_OBJECT_ID: import.meta.env.VITE_GLOBAL_STATE_OBJECT_ID,
-  VITE_SUI_NETWORK: import.meta.env.VITE_SUI_NETWORK,
-  NODE_ENV: import.meta.env.NODE_ENV,
-  MODE: import.meta.env.MODE
-});
+// Configuration loaded from environment variables
 
 // Contract function names
 export const CONTRACT_FUNCTIONS = {
   CREATE_COLLECTION: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::create_collection`,
   MINT_EDITION: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::mint_edition`,
-  GET_COLLECTION_BY_ID: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_collection_info_by_id`,
-  GET_COLLECTION_INFO: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_collection_info`,
+  GET_COLLECTION_INFO_BY_ID: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_collection_info_by_id`,
   GET_MINT_COUNTER_INFO: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_mint_counter_info`,
   GET_NFT_INFO: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_nft_info`,
   GET_COLLECTION_COUNT: `${NFT_FACTORY_PACKAGE_ID}::nft_factory::get_collection_count`,
@@ -82,11 +67,6 @@ export class NFTFactoryContract {
     const txb = new Transaction();
 
     // Prepare arguments
-    console.log('🔄 createCollection: Preparing arguments with params:', params);
-    console.log('🔄 createCollection: name type:', typeof params.name, 'value:', params.name);
-    console.log('🔄 createCollection: description type:', typeof params.description, 'value:', params.description);
-    console.log('🔄 createCollection: imageUrl type:', typeof params.imageUrl, 'value:', params.imageUrl);
-    console.log('🔄 createCollection: maxSupply type:', typeof params.maxSupply, 'value:', params.maxSupply);
     
     const name = txb.pure.string(params.name);
     const description = txb.pure.string(params.description);
@@ -147,48 +127,6 @@ export class NFTFactoryContract {
     return null;
   }
 
-  /**
-   * Get collection information from Collection object
-   */
-  async getCollectionInfo(collectionId: string): Promise<Collection | null> {
-    const txb = new Transaction();
-    txb.moveCall({
-      target: CONTRACT_FUNCTIONS.GET_COLLECTION_INFO,
-      arguments: [txb.object(collectionId)],
-    });
-
-    const result = await this.client.dryRunTransactionBlock({
-      transactionBlock: await txb.build({ client: this.client }),
-    });
-
-    if (result.effects.status.status !== 'success') {
-      console.error('Failed to get collection info. Result:', result);
-      return null;
-    }
-
-    const returnValues = (result.effects as any).returnValues || [];
-    if (!returnValues || returnValues.length < 6) {
-      return null;
-    }
-
-    // Parse return values (name, description, image_url, max_supply, creator, created_at)
-    const name = this.parseString(returnValues[0].bcs);
-    const description = this.parseString(returnValues[1].bcs);
-    const imageUrl = this.parseString(returnValues[2].bcs);
-    const maxSupply = returnValues[3].bcs ? this.parseU64(returnValues[3].bcs) : null;
-    const creator = this.parseAddress(returnValues[4].bcs);
-    const createdAt = this.parseU64(returnValues[5].bcs);
-
-    return {
-      id: collectionId,
-      name,
-      description,
-      imageUrl,
-      maxSupply,
-      creator,
-      createdAt,
-    };
-  }
 
   /**
    * Get mint counter information
@@ -816,13 +754,6 @@ export class NFTFactoryContract {
     return '0x' + Buffer.from(bcs, 'base64').toString('hex');
   }
 
-  /**
-   * Parse string from BCS
-   */
-  private parseString(bcs: string): string {
-    // This is a simplified parser - in production you'd use proper BCS decoding
-    return Buffer.from(bcs, 'base64').toString('utf-8');
-  }
 
   /**
    * Parse u64 from BCS

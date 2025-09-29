@@ -30,18 +30,14 @@ export function useNFTMinting(collectionId: string | null) {
     setError(null);
 
     try {
-      console.log('🔍 Starting mint process for collection:', collectionId);
-      
       // FIXED approach: use Events to find counter
       const mintCounter = await nftFactoryContract.getMintCounterByCollection(collectionId, currentAccount.address);
-      console.log('🔍 Found mint counter:', mintCounter);
 
       if (!mintCounter) {
         throw new Error('Mint counter not found for this collection');
       }
 
       // Mint the edition with metadata
-      console.log('🔍 Calling mintEdition with counterId:', mintCounter.id);
       const result = await nftFactoryContract.mintEdition(
         mintCounter.id,
         name,
@@ -49,14 +45,12 @@ export function useNFTMinting(collectionId: string | null) {
         imageUrl,
         symbol,
         async (txb) => {
-          console.log('🔍 Signing transaction...');
           const signedTx = await signTransactionBlock({ transactionBlock: txb as any });
           
           if (!signedTx) {
             throw new Error('Failed to sign transaction');
           }
           
-          console.log('🔍 Executing transaction...');
           return await client.executeTransactionBlock({
             transactionBlock: signedTx.transactionBlockBytes,
             signature: signedTx.signature,
@@ -67,8 +61,6 @@ export function useNFTMinting(collectionId: string | null) {
           });
         }
       );
-      
-      console.log('🔍 Mint result:', result);
 
       if (result.effects?.status?.status === 'success') {
         // Get the updated mint counter to get the correct edition number
@@ -90,9 +82,6 @@ export function useNFTMinting(collectionId: string | null) {
         };
 
         setMintedNFTs(prev => [...prev, newNFT]);
-        
-        // Update counter locally
-        console.log('✅ NFT minted successfully, edition number:', newNFT.editionNumber);
         
         // Reload minted NFTs to get the latest data
         await loadMintedNFTs();

@@ -46,24 +46,17 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
 
   const loadCollections = useCallback(async () => {
     if (!client || !currentAccount?.address) {
-      console.log('❌ loadCollections: No client or account available');
       return;
     }
 
-    console.log('🔄 loadCollections: Starting to load collections...');
     setIsLoading(true);
     setError(null);
 
     try {
       const collectionsData = await nftFactoryContract.getUserCollectionsFromEvents(currentAccount.address);
-      console.log('✅ loadCollections: Loaded collections:', collectionsData.length);
-      
-      setCollections(prev => {
-        console.log('🔄 loadCollections: Updating collections state from', prev.length, 'to', collectionsData.length);
-        return collectionsData;
-      });
+      setCollections(collectionsData);
     } catch (err) {
-      console.error('❌ loadCollections: Error loading collections:', err);
+      console.error('❌ Failed to load collections:', err);
       setError(err instanceof Error ? err.message : 'Failed to load collections');
     } finally {
       setIsLoading(false);
@@ -71,7 +64,6 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
   }, [client, currentAccount?.address]);
 
   const refreshCollections = useCallback(async () => {
-    console.log('🔄 refreshCollections: Starting refresh...');
     await loadCollections();
   }, [loadCollections]);
 
@@ -82,12 +74,10 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
     maxSupply?: number;
   }): Promise<CollectionInfo | null> => {
     if (!client || !signTransactionBlock || !currentAccount) {
-      console.log('❌ createCollection: Missing required dependencies');
       setError('Wallet not connected');
       return null;
     }
 
-    console.log('🔄 createCollection: Creating collection with params:', params);
     setIsLoading(true);
     setError(null);
 
@@ -114,23 +104,14 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
       );
 
       if (result.effects?.status?.status === 'success') {
-        console.log('✅ createCollection: Collection created successfully, refreshing collections...');
         await refreshCollections();
-        
-        // Return the newly created collection (it should be the first one in the list)
-        const updatedCollections = await nftFactoryContract.getUserCollectionsFromEvents(currentAccount.address);
-        if (updatedCollections.length > 0) {
-          return updatedCollections[0];
-        }
-        
-        return null;
+        return { success: true } as any;
       } else {
-        console.log('❌ createCollection: Transaction failed');
         setError('Failed to create collection');
         return null;
       }
     } catch (err) {
-      console.error('❌ createCollection: Error creating collection:', err);
+      console.error('❌ Failed to create collection:', err);
       setError(err instanceof Error ? err.message : 'Failed to create collection');
       return null;
     } finally {
@@ -139,7 +120,6 @@ export const CollectionsProvider: React.FC<CollectionsProviderProps> = ({ childr
   }, [client, signTransactionBlock, currentAccount, refreshCollections]);
 
   const selectCollection = useCallback((collection: CollectionInfo | null) => {
-    console.log('🔄 selectCollection: Selecting collection:', collection?.id || 'null');
     setSelectedCollection(collection);
   }, []);
 
